@@ -1,0 +1,16 @@
+# Java / Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.jar
+**/hs_err_pid*.log
+**/.DS_Store
+
+# Node / Vite
+node_modules/
+dist/
+*.log
+
+# IDEs
+.idea/
+.vscode/
+*.iml
