@@ -116,4 +116,37 @@ class TransferServiceTest {
         assertThrows(NoApplicableFeeException.class, () -> service.create(req));
         verify(repository, never()).save(any());
     }
+
+    @Test
+    void getAllTransfers_returnsMappedList() {
+        Transfer t = Transfer.builder()
+                .sourceAccount("1111111111")
+                .destinationAccount("2222222222")
+                .amount(new BigDecimal("10.00"))
+                .fee(new BigDecimal("3.00"))
+                .transferDate(LocalDate.now(ZONE).plusDays(2))
+                .scheduledDate(LocalDate.now(ZONE))
+                .status(TransferStatus.SCHEDULED)
+                .build();
+
+        try {
+            var idField = Transfer.class.getDeclaredField("id");
+            idField.setAccessible(true);
+            idField.set(t, UUID.randomUUID());
+        } catch (Exception ignored) {}
+
+        when(repository.findAll()).thenReturn(java.util.List.of(t));
+
+        var list = service.getAllTransfers();
+
+        assertEquals(1, list.size());
+        var dto = list.get(0);
+        assertEquals("1111111111", dto.getSourceAccount());
+        assertEquals("2222222222", dto.getDestinationAccount());
+        assertEquals(new BigDecimal("10.00"), dto.getAmount());
+        assertEquals(new BigDecimal("3.00"), dto.getFee());
+        assertEquals(TransferStatus.SCHEDULED, dto.getStatus());
+        verify(repository).findAll();
+    }
+
 }
