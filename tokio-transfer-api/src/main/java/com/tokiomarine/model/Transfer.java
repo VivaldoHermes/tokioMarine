@@ -1,7 +1,9 @@
 package com.tokiomarine.model;
 
 import com.tokiomarine.model.enums.TransferStatus;
+import org.hibernate.annotations.Type;
 import lombok.*;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -18,7 +20,10 @@ import java.util.UUID;
 public class Transfer {
 
     @Id
-    @Column(name = "id", updatable = false, nullable = false)
+    @GeneratedValue(generator = "uuid2")
+    @GenericGenerator(name = "uuid2", strategy = "org.hibernate.id.UUIDGenerator")
+    @Type(type = "uuid-char")
+    @Column(name = "id", columnDefinition = "CHAR(36)")
     private UUID id;
 
     @Setter
