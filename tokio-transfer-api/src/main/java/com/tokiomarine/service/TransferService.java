@@ -15,6 +15,8 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TransferService {
@@ -61,5 +63,22 @@ public class TransferService {
                 saved.getScheduledDate(),
                 saved.getStatus()
         );
+    }
+
+    @Transactional(readOnly = true)
+    public List<TransferResponseDTO> getAllTransfers() {
+        return transferRepository.findAll()
+                .stream()
+                .map(t -> new TransferResponseDTO(
+                        t.getId(),
+                        t.getSourceAccount(),
+                        t.getDestinationAccount(),
+                        t.getAmount(),
+                        t.getFee(),
+                        t.getTransferDate(),
+                        t.getScheduledDate(),
+                        t.getStatus()
+                ))
+                .collect(Collectors.toList());
     }
 }

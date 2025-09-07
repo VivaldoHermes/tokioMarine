@@ -9,6 +9,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/transfers")
@@ -28,5 +29,11 @@ public class TransferController {
                 .buildAndExpand(created.getId())
                 .toUri();
         return ResponseEntity.created(location).body(created);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<TransferResponseDTO>> getAllTransfers() {
+        List<TransferResponseDTO> transfers = transferService.getAllTransfers();
+        return ResponseEntity.ok(transfers);
     }
 }
