@@ -23,21 +23,6 @@ Serviço de agendamento de transferências com cálculo de taxa por faixa de dia
 - `31 ≤ D ≤ 40` → **4,7%**
 - `41 ≤ D ≤ 50` → **1,7%**
 
-## Endpoints
-
-### POST `/transfers`
-Cria uma transferência.
-
-**Request body**
-```json
-{
-  "sourceAccount": "1234567890",
-  "destinationAccount": "0987654321",
-  "amount": 1200.50,
-  "transferDate": "2025-09-10"
-}
-```
-
 ## Como acessar o console (H2)
 
 ### Suba a aplicação:
@@ -62,3 +47,26 @@ http://localhost:8080/h2-console
 ### Consulta rápida para verificar dados:
 
 SELECT * FROM transfers;
+
+## Como usar o Swagger
+
+### Abra no navegador
+http://localhost:8080/swagger-ui/index.html
+
+## Endpoints
+
+### POST `/transfers`
+Cria uma transferência.
+
+**Request body**
+```json
+{
+  "sourceAccount": "1234567890",
+  "destinationAccount": "0987654321",
+  "amount": 1200.50,
+  "transferDate": "2025-09-10"
+}
+```
+
+### GET `/transfers`
+Veja todas as transferências adicionadas.
