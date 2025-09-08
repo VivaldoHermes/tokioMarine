@@ -6,9 +6,10 @@ export interface Transfer {
   sourceAccount: string
   destinationAccount: string
   amount: number
-  scheduledDate: string
   fee: number
   status: string
+  transferDate: string
+  scheduledDate: string
 }
 
 export interface TransferRequest {
@@ -53,7 +54,15 @@ export const useTransferStore = defineStore('transfer', {
       this.loading = true
       this.error = null
       try {
-        const { data } = await api.post<Transfer>('/transfers', payload)
+        // backend espera transferDate
+        const dto = {
+          sourceAccount: payload.sourceAccount,
+          destinationAccount: payload.destinationAccount,
+          amount: payload.amount,
+          transferDate: payload.scheduledDate, // 👈 mapeamento correto
+        }
+
+        const { data } = await api.post<Transfer>('/transfers', dto)
         this.items.unshift(data)
         return data
       } catch (err: unknown) {
