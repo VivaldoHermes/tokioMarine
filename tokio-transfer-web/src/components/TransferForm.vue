@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { ref, reactive, computed, watch } from 'vue'
 import { useTransferStore, type TransferRequest } from '../stores/transfer'
+import { useToast } from '../composables/useToast'
+import { formatMoneyBRL, parseMoneyBRL } from '../utils/format'
 
 const store = useTransferStore()
+const { success: toastSuccess, error: toastError } = useToast()
 
 function todayLocalISO(): string {
   const d = new Date()
@@ -20,6 +23,9 @@ const form = ref<TransferRequest>({
   amount: 0,
   scheduledDate: today,
 })
+
+// string exibida no input (com R$)
+const amountInput = ref<string>('')
 
 const submitting = ref(false)
 const error = ref<string | null>(null)
@@ -103,6 +109,39 @@ function onBlur(field: Field) {
   validateField(field)
 }
 
+/** Máscara de moeda **/
+function onAmountInput(e: Event) {
+  const el = e.target as HTMLInputElement
+  const raw = el.value
+
+  if (!raw.trim()) {
+    amountInput.value = ''
+    form.value.amount = 0
+    validateField('amount')
+    return
+  }
+
+  const num = parseMoneyBRL(raw)
+  form.value.amount = num
+  amountInput.value = formatMoneyBRL(num)
+  validateField('amount')
+}
+
+function onAmountFocus(e: Event) {
+  const el = e.target as HTMLInputElement
+  // seleciona tudo p/ facilitar edição
+  requestAnimationFrame(() => el.setSelectionRange(0, el.value.length))
+}
+
+function onAmountBlur() {
+  // garante formatação quando sair do campo
+  amountInput.value = form.value.amount > 0 ? formatMoneyBRL(form.value.amount) : ''
+  validateField('amount')
+}
+
+// inicializa a string exibida
+amountInput.value = form.value.amount > 0 ? formatMoneyBRL(form.value.amount) : ''
+
 async function submit() {
   error.value = null
   success.value = false
@@ -115,20 +154,19 @@ async function submit() {
   try {
     await store.create(form.value)
     success.value = true
+    toastSuccess('Transfer scheduled successfully.')
+    // reset controlado
     form.value.amount = 0
+    amountInput.value = ''
     form.value.scheduledDate = today
     errors.amount = ''
     errors.scheduledDate = ''
-  } catch (err: unknown) {
-    error.value =
-      store.error ?? (err instanceof Error ? err.message : 'Failed to schedule transfer')
+  } catch {
+    error.value = store.error ?? 'Failed to schedule transfer'
+    toastError(error.value)
   } finally {
     submitting.value = false
   }
-}
-
-function formatHint(msg: string) {
-  return msg
 }
 </script>
 
@@ -143,7 +181,7 @@ function formatHint(msg: string) {
         autocomplete="off"
       />
       <small v-if="touched.sourceAccount && errors.sourceAccount" style="color: #c00">
-        {{ formatHint(errors.sourceAccount) }}
+        {{ errors.sourceAccount }}
       </small>
     </label>
 
@@ -156,22 +194,24 @@ function formatHint(msg: string) {
         autocomplete="off"
       />
       <small v-if="touched.destinationAccount && errors.destinationAccount" style="color: #c00">
-        {{ formatHint(errors.destinationAccount) }}
+        {{ errors.destinationAccount }}
       </small>
     </label>
 
     <label style="display: grid; gap: 6px">
       <span>Amount</span>
       <input
-        v-model.number="form.amount"
-        type="number"
-        step="0.01"
-        min="0.01"
+        :value="amountInput"
+        @input="onAmountInput"
+        @focus="onAmountFocus"
+        @blur="onAmountBlur"
+        inputmode="decimal"
+        autocomplete="off"
+        placeholder="R$ 0,00"
         required
-        @blur="onBlur('amount')"
       />
       <small v-if="touched.amount && errors.amount" style="color: #c00">
-        {{ formatHint(errors.amount) }}
+        {{ errors.amount }}
       </small>
     </label>
 
@@ -185,15 +225,12 @@ function formatHint(msg: string) {
         @blur="onBlur('scheduledDate')"
       />
       <small v-if="touched.scheduledDate && errors.scheduledDate" style="color: #c00">
-        {{ formatHint(errors.scheduledDate) }}
+        {{ errors.scheduledDate }}
       </small>
     </label>
 
     <button :disabled="submitting || !isValid" type="submit">
       {{ submitting ? 'Scheduling...' : 'Schedule' }}
     </button>
-
-    <p v-if="error" style="color: #c00">{{ error }}</p>
-    <p v-else-if="success" style="color: #0a0">Transfer scheduled successfully.</p>
   </form>
 </template>

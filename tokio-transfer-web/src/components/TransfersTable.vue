@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, computed } from 'vue'
 import { useTransferStore, type Transfer } from '../stores/transfer'
+import { formatMoneyBRL, formatISODateYYYYMMDD } from '../utils/format'
 
 const store = useTransferStore()
 
@@ -11,19 +12,6 @@ onMounted(() => {
 })
 
 const items = computed<Transfer[]>(() => store.items)
-
-function formatMoney(v: number) {
-  try {
-    return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-  } catch {
-    return String(v)
-  }
-}
-
-function formatDate(iso: string) {
-  const d = new Date(iso)
-  return isNaN(d.getTime()) ? iso : d.toISOString().slice(0, 10)
-}
 </script>
 
 <template>
@@ -49,9 +37,9 @@ function formatDate(iso: string) {
           <td>{{ t.id }}</td>
           <td>{{ t.sourceAccount }}</td>
           <td>{{ t.destinationAccount }}</td>
-          <td>{{ formatMoney(t.amount) }}</td>
-          <td>{{ formatDate(t.scheduledDate) }}</td>
-          <td>{{ formatMoney(t.fee) }}</td>
+          <td>{{ formatMoneyBRL(t.amount) }}</td>
+          <td>{{ formatISODateYYYYMMDD(t.scheduledDate) }}</td>
+          <td>{{ formatMoneyBRL(t.fee) }}</td>
           <td>{{ t.status }}</td>
         </tr>
       </tbody>
