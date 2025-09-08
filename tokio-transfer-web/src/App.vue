@@ -1,11 +1,13 @@
-<script setup lang="ts"></script>
-
 <template>
-  <h1>You did it!</h1>
-  <p>
-    Visit <a href="https://vuejs.org/" target="_blank" rel="noopener">vuejs.org</a> to read the
-    documentation
-  </p>
+  <div class="app">
+    <header style="padding: 12px; border-bottom: 1px solid #eee">
+      <nav style="display: flex; gap: 16px">
+        <RouterLink to="/schedule">Schedule Transfer</RouterLink>
+        <RouterLink to="/transfers">Transfers</RouterLink>
+      </nav>
+    </header>
+    <main style="padding: 16px">
+      <RouterView />
+    </main>
+  </div>
 </template>
-
-<style scoped></style>
