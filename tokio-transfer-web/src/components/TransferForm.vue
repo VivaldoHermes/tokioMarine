@@ -2,7 +2,7 @@
 import { ref, reactive, computed, watch } from 'vue'
 import { useTransferStore, type TransferRequest } from '../stores/transfer'
 import { useToast } from '../composables/useToast'
-import { formatMoneyBRL, parseMoneyBRL } from '../utils/format'
+import { parseMoneyBRL, formatMoneyBRL } from '../utils/format'
 
 const store = useTransferStore()
 const { success: toastSuccess, error: toastError } = useToast()
@@ -24,8 +24,8 @@ const form = ref<TransferRequest>({
   scheduledDate: today,
 })
 
-// string exibida no input (com R$)
-const amountInput = ref<string>('')
+const amountInput = ref<string>(formatMoneyBRL(form.value.amount))
+const amountEl = ref<HTMLInputElement | null>(null)
 
 const submitting = ref(false)
 const error = ref<string | null>(null)
@@ -109,38 +109,18 @@ function onBlur(field: Field) {
   validateField(field)
 }
 
-/** Máscara de moeda **/
+function onAmountFocus() {
+  amountInput.value = form.value.amount ? String(form.value.amount) : ''
+}
 function onAmountInput(e: Event) {
-  const el = e.target as HTMLInputElement
-  const raw = el.value
-
-  if (!raw.trim()) {
-    amountInput.value = ''
-    form.value.amount = 0
-    validateField('amount')
-    return
-  }
-
-  const num = parseMoneyBRL(raw)
-  form.value.amount = num
-  amountInput.value = formatMoneyBRL(num)
-  validateField('amount')
+  const t = e.target as HTMLInputElement
+  amountInput.value = t.value
+  form.value.amount = parseMoneyBRL(t.value)
 }
-
-function onAmountFocus(e: Event) {
-  const el = e.target as HTMLInputElement
-  // seleciona tudo p/ facilitar edição
-  requestAnimationFrame(() => el.setSelectionRange(0, el.value.length))
-}
-
 function onAmountBlur() {
-  // garante formatação quando sair do campo
-  amountInput.value = form.value.amount > 0 ? formatMoneyBRL(form.value.amount) : ''
   validateField('amount')
+  amountInput.value = formatMoneyBRL(form.value.amount)
 }
-
-// inicializa a string exibida
-amountInput.value = form.value.amount > 0 ? formatMoneyBRL(form.value.amount) : ''
 
 async function submit() {
   error.value = null
@@ -155,12 +135,11 @@ async function submit() {
     await store.create(form.value)
     success.value = true
     toastSuccess('Transfer scheduled successfully.')
-    // reset controlado
     form.value.amount = 0
-    amountInput.value = ''
     form.value.scheduledDate = today
     errors.amount = ''
     errors.scheduledDate = ''
+    amountInput.value = formatMoneyBRL(0)
   } catch {
     error.value = store.error ?? 'Failed to schedule transfer'
     toastError(error.value)
@@ -201,13 +180,14 @@ async function submit() {
     <label style="display: grid; gap: 6px">
       <span>Amount</span>
       <input
+        id="amount-input"
+        ref="amountEl"
         :value="amountInput"
-        @input="onAmountInput"
         @focus="onAmountFocus"
+        @input="onAmountInput"
         @blur="onAmountBlur"
         inputmode="decimal"
         autocomplete="off"
-        placeholder="R$ 0,00"
         required
       />
       <small v-if="touched.amount && errors.amount" style="color: #c00">
