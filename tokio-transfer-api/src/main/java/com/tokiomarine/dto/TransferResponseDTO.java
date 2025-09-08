@@ -10,8 +10,8 @@ import java.util.UUID;
 
 @Getter
 @AllArgsConstructor
+@lombok.Builder
 public class TransferResponseDTO {
-    private UUID id;
     private String sourceAccount;
     private String destinationAccount;
     private BigDecimal amount;

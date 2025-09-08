@@ -54,7 +54,6 @@ public class TransferService {
         Transfer saved = transferRepository.save(t);
 
         return new TransferResponseDTO(
-                saved.getId(),
                 saved.getSourceAccount(),
                 saved.getDestinationAccount(),
                 saved.getAmount(),
@@ -70,7 +69,6 @@ public class TransferService {
         return transferRepository.findAll()
                 .stream()
                 .map(t -> new TransferResponseDTO(
-                        t.getId(),
                         t.getSourceAccount(),
                         t.getDestinationAccount(),
                         t.getAmount(),

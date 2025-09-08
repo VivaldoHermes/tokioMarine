@@ -36,11 +36,7 @@ public class TransferController {
     })
     public ResponseEntity<TransferResponseDTO> create(@RequestBody @Valid TransferRequestDTO body) {
         TransferResponseDTO created = transferService.create(body);
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(created.getId())
-                .toUri();
-        return ResponseEntity.created(location).body(created);
+        return ResponseEntity.status(201).body(created);
     }
 
     @GetMapping
