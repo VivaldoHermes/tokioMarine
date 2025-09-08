@@ -1,3 +1,7 @@
+<script setup lang="ts">
+import ToastHost from './components/ToastHost.vue'
+</script>
+
 <template>
   <div class="app">
     <header style="padding: 12px; border-bottom: 1px solid #eee">
@@ -9,5 +13,8 @@
     <main style="padding: 16px">
       <RouterView />
     </main>
+
+    <!-- Toasts -->
+    <ToastHost />
   </div>
 </template>
