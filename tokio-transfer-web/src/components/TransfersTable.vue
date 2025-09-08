@@ -22,7 +22,7 @@
       <table class="table-list">
         <thead>
           <tr>
-            <th>ID</th>
+            <!-- (removido) <th>ID</th> -->
             <th>Origem</th>
             <th>Destino</th>
             <th>Valor</th>
@@ -32,8 +32,9 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="t in items" :key="t.id">
-            <td class="mono truncate" :title="t.id">{{ t.id }}</td>
+          <!-- use o índice como key OU uma chave derivada (ver abaixo) -->
+          <tr v-for="(t, idx) in items" :key="idx">
+            <!-- (removido) célula do ID -->
             <td class="truncate" :title="t.sourceAccount">{{ t.sourceAccount }}</td>
             <td class="truncate" :title="t.destinationAccount">{{ t.destinationAccount }}</td>
             <td>{{ formatMoneyBRL(t.amount) }}</td>
