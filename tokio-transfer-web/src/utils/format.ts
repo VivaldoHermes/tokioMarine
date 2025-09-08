@@ -18,13 +18,20 @@ export function parseMoneyBRL(input: string | number | null | undefined): number
   return Number.isFinite(n) ? n : 0
 }
 
-export function formatISODateYYYYMMDD(iso: string | null | undefined): string {
+export function formatISODateDDMMYYYY(
+  iso: string | null | undefined,
+  sep: '-' | '/' = '-',
+): string {
   if (!iso) return ''
-  if (/^\d{4}-\d{2}-\d{2}$/.test(iso)) return iso
-  const d = new Date(iso)
-  if (Number.isNaN(d.getTime())) return String(iso)
-  const yyyy = d.getFullYear()
-  const mm = String(d.getMonth() + 1).padStart(2, '0')
+  const s = String(iso)
+
+  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/)
+  if (m) return `${m[3]}${sep}${m[2]}${sep}${m[1]}`
+
+  const d = new Date(s)
+  if (Number.isNaN(d.getTime())) return s
   const dd = String(d.getDate()).padStart(2, '0')
-  return `${yyyy}-${mm}-${dd}`
+  const mm = String(d.getMonth() + 1).padStart(2, '0')
+  const yyyy = d.getFullYear()
+  return `${dd}${sep}${mm}${sep}${yyyy}`
 }
