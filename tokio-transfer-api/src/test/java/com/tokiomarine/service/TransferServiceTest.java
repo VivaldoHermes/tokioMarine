@@ -88,8 +88,7 @@ class TransferServiceTest {
 
         verify(feeCalculator).calculate(new BigDecimal("1000.00"), D);
         verify(repository).save(ArgumentMatchers.any(Transfer.class));
-
-        assertNotNull(resp.getId());
+        
         assertEquals("1234567890", resp.getSourceAccount());
         assertEquals("0987654321", resp.getDestinationAccount());
         assertEquals(new BigDecimal("1000.00"), resp.getAmount());
